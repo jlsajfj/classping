@@ -7,6 +7,7 @@ app = Flask(__name__)
 account_sid = os.environ["TWILIO_ACCOUNT_SID"]
 auth_token = os.environ["TWILIO_AUTH_TOKEN"]
 from_number = os.environ["FROM_NUMBER"]
+api_key = os.environ["API_KEY"]
 client = Client(account_sid, auth_token)
 
 
@@ -21,6 +22,9 @@ def send_text(message: str, numbers: list[str]) -> None:
 
 @app.route("/send_sms", methods=["POST"])
 def send_sms():
+    if request.headers.get("X-API-Key") != api_key:
+        return jsonify({"error": "Invalid or missing API key"}), 401
+
     data = request.json
     course = data.get("course")
     seats_taken = data.get("seats_taken")
